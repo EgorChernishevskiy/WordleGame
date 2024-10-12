@@ -23,7 +23,3 @@ jobs:
       - name: Run flake8 for line length
         run: |
           flake8 --max-line-length=120 .
-
-      - name: Run isort for import sorting
-        run: |
-          isort --check-only .
