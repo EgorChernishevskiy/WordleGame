@@ -5,6 +5,7 @@ class UserCreate(BaseModel):
     user_name: str
     password: str
 
+
 class UserOut(BaseModel):
     id: int
     user_name: str
@@ -12,6 +13,7 @@ class UserOut(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class UserScore(BaseModel):
     score: int
