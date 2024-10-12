@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from src.auth.models import Base
 
+
 DATABASE_URL = "sqlite+aiosqlite:///test.db"
 
 engine = create_async_engine(DATABASE_URL, echo=True)
