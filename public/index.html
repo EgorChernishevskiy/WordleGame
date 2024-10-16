@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle</title>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 40px);
+            grid-gap: 5px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 24px;
+            line-height: 40px;
+        }
+        .correct {
+            background-color: green;
+        }
+        .present {
+            background-color: yellow;
+        }
+        .absent {
+            background-color: gray;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wordle</h1>
+    <a href="login.html">Войти в профиль</a> 
+    <button id="restart-game">Restart Game</button>
+    <div id="game-board" class="grid"></div>
+    <input type="text" id="input-word" maxlength="5" />
+    <button id="submit-word">Проверить</button>
+
+    <script src="./bundle.js"></script>
+</body>
+</html>
