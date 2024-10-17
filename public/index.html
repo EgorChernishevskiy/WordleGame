@@ -4,40 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wordle</title>
-    <style>
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(5, 40px);
-            grid-gap: 5px;
-            margin-top: 20px;
-        }
-        .cell {
-            width: 40px;
-            height: 40px;
-            border: 1px solid black;
-            text-align: center;
-            font-size: 24px;
-            line-height: 40px;
-        }
-        .correct {
-            background-color: green;
-        }
-        .present {
-            background-color: yellow;
-        }
-        .absent {
-            background-color: gray;
-        }
-    </style>
+    <link rel="stylesheet" href="./normailze.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
-<body>
-    <h1>Wordle</h1>
-    <a href="login.html">Войти в профиль</a> 
-    <button id="restart-game">Restart Game</button>
-    <div id="game-board" class="grid"></div>
-    <input type="text" id="input-word" maxlength="5" />
-    <button id="submit-word">Проверить</button>
-
+<header>
+    <div class="container">
+        <div class="login">
+            <a class="log" href="login.html">Вход</a>
+        </div> 
+    </div>
+</header>
+<main>
+    <div class="game">
+        <div class="logo">Wordle</div>
+        <button class="rest-game" id="restart-game">ПЕРЕЗАПУСК</button>
+        <div id="game-board" class="grid"></div>
+        <input class="input-word" type="text" id="input-word" maxlength="5" />
+        <button class="btn-word" id="submit-word">ПРОВЕРИТЬ</button>
+    </div>
     <script src="./bundle.js"></script>
-</body>
+</main>
 </html>
