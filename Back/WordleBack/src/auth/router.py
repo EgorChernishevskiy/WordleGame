@@ -46,7 +46,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
             raise HTTPException(status_code=400, detail="Incorrect username or password")
 
         # Генерация токена при успешной проверке
-        access_token_expires = timedelta(minutes=utils.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = utils.create_access_token(data={"sub": str(db_user.id)})
 
         return {
