@@ -5,7 +5,6 @@ from sqlalchemy.future import select
 from src import database
 from src.auth import schemas, models
 
-
 router = APIRouter()
 
 

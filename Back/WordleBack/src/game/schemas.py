@@ -1,8 +1,10 @@
 from pydantic import BaseModel
 
+
 class GameStart(BaseModel):
     game_id: int
     is_active: bool
+
 
 class AttemptResult(BaseModel):
     word: str
@@ -10,6 +12,7 @@ class AttemptResult(BaseModel):
     correct_letters: list[int]  # Индексы букв, входящих в слово, но не на месте
     attempts_left: int
     game_won: bool
+
 
 class Attempt(BaseModel):
     word: str

@@ -8,6 +8,7 @@ from src import database
 from src.auth import schemas, models, utils
 from src.auth.utils import get_password_hash, verify_password
 from fastapi.security import OAuth2PasswordRequestForm
+
 router = APIRouter()
 
 

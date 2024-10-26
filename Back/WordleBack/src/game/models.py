@@ -1,7 +1,6 @@
 import json
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 from src.database import Base
@@ -18,6 +17,7 @@ class Game(Base):
 
     user = relationship("User", back_populates="games")  # Связь с пользователем
     attempts_list = relationship("Attempt", back_populates="game")  # Связь с попытками
+
 
 class Attempt(Base):
     __tablename__ = "attempts"

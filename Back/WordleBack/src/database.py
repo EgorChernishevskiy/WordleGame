@@ -3,9 +3,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 Base = declarative_base()
 
-
 DATABASE_URL = "sqlite+aiosqlite:///test.db"
-
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 AsyncSessionLocal = sessionmaker(
