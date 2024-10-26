@@ -15,7 +15,9 @@ async def get_top_players(db: AsyncSession = Depends(database.get_db)):
     async with db as session:
         result = await session.execute(select(models.User).order_by(models.User.score.desc()).limit(10))
         top_players = result.scalars().all()
-        return top_players
+
+        # Преобразуем топ игроков в формат, соответствующий UserOut
+        return top_players  # Возвращаем только список пользователей
 
 
 # Получение score конкретного пользователя
@@ -26,4 +28,8 @@ async def get_user_score(user_name: str, db: AsyncSession = Depends(database.get
         user = result.scalars().first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return user
+        return {
+            "status": "succsess",
+            "data": [user],
+            "details": None
+        }
