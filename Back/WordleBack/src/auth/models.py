@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
 
+from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+from src.database import Base
 
 
 class User(Base):
@@ -12,3 +12,4 @@ class User(Base):
     user_name = Column(String, unique=True, index=True, nullable=False)
     password_hashed = Column(String, nullable=False)
     score = Column(Integer, default=0)
+    games = relationship("Game", back_populates="user")  # Связь с играми
