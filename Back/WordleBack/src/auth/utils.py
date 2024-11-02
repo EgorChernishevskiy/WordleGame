@@ -1,3 +1,5 @@
+from typing import Optional
+
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
@@ -8,6 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 from src.database import get_db
 from src.auth.models import User
+from src.game.OptionalOAuth2 import OptionalOAuth2PasswordBearer
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -27,7 +30,7 @@ SECRET_KEY = "biba"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+optional_oauth2_scheme = OptionalOAuth2PasswordBearer(tokenUrl="login")
 
 
 def create_access_token(data: dict):
@@ -66,5 +69,15 @@ async def get_user_from_token(token: str, db: AsyncSession):
         )
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
-    return await get_user_from_token(token, db)
+async def get_current_user(
+        token: Optional[str] = Depends(optional_oauth2_scheme),
+        db: AsyncSession = Depends(get_db)
+) -> Optional[User]:
+    if token is None:
+        return None  # Возвращаем None для анонимного пользователя
+
+    # Проверяем токен, если он существует
+    user = await get_user_from_token(token, db)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    return user

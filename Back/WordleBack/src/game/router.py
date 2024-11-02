@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional
+
 from src import database
 from src.auth.utils import get_current_user
 from src.game import models, schemas
@@ -11,10 +13,12 @@ router = APIRouter()
 
 @router.post("/game/start", response_model=schemas.GameStart)
 async def start_game(
-        db: AsyncSession = Depends(database.get_db), current_user: User = Depends(get_current_user)
+        db: AsyncSession = Depends(database.get_db),
+        current_user: Optional[User] = Depends(get_current_user)
 ):
     target_word = generate_target_word()
-    new_game = models.Game(user_id=current_user.id, target_word=target_word)
+    # Если пользователь не авторизован, user_id будет None
+    new_game = models.Game(user_id=current_user.id if current_user else None, target_word=target_word)
     db.add(new_game)
     await db.commit()
     await db.refresh(new_game)
@@ -23,8 +27,10 @@ async def start_game(
 
 @router.post("/game/{game_id}/attempt", response_model=schemas.AttemptResult)
 async def make_attempt(
-        game_id: int, attempt: schemas.Attempt, db: AsyncSession = Depends(database.get_db),
-        current_user: User = Depends(get_current_user)
+        game_id: int,
+        attempt: schemas.Attempt,
+        db: AsyncSession = Depends(database.get_db),
+        current_user: Optional[User] = Depends(get_current_user, use_cache=True)
 ):
     game = await db.get(models.Game, game_id)
     if not game or not game.is_active:
@@ -48,8 +54,9 @@ async def make_attempt(
     game_won = attempt.word == target_word
     if game_won or game.attempts >= 6:
         game.is_active = False
-        if game_won:
-            current_user.score += 1  # Увеличиваем счет
+        # Начисляем очки только если пользователь авторизован
+        if game_won and current_user:
+            current_user.score += 10  # Увеличиваем счет только авторизованным пользователям
     await db.commit()
 
     return {
