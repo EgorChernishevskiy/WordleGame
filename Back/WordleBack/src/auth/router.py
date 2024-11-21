@@ -20,15 +20,18 @@ async def register(user: schemas.UserCreate, db: AsyncSession = Depends(database
             raise HTTPException(status_code=400, detail="Username already registered")
 
         hashed_password = get_password_hash(user.password)
-        new_user = models.User(user_name=user.user_name, password_hashed=hashed_password)
+        new_user = models.User(
+            user_name=user.user_name,
+            password_hashed=hashed_password,
+            score=0,
+            games_played=0,
+            wins=0,
+            win_rate=0.0
+        )
         session.add(new_user)
         await session.commit()
         await session.refresh(new_user)
-        return {
-            "status": "succsess",
-            "data": [new_user],
-            "details": None
-        }
+        return new_user  # Возвращаем объект, соответствующий UserOut
 
 
 # Авторизация пользователя
@@ -46,7 +49,10 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         # Генерация токена при успешной проверке
         access_token = utils.create_access_token(data={"sub": str(db_user.id)})
 
+        user_id = db_user.id
+
         return {
             "access_token": access_token,
-            "token_type": "bearer"
+            "token_type": "bearer",
+            "user_id": user_id
         }

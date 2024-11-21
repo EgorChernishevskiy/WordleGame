@@ -6,7 +6,7 @@ from src import database
 from src.auth.utils import get_current_user
 from src.game import models, schemas
 from src.auth.models import User
-from src.game.utils import generate_target_word
+from src.game.utils import generate_target_word, words_list
 
 router = APIRouter()
 
@@ -37,9 +37,16 @@ async def make_attempt(
         raise HTTPException(status_code=404, detail="Game not found or already finished")
 
     target_word = game.target_word
+
+    # Проверка длины слова
     if len(attempt.word) != 5:
         raise HTTPException(status_code=400, detail="Word must be 5 letters long")
 
+    # Проверка наличия слова в words_list
+    if attempt.word not in words_list:
+        raise HTTPException(status_code=400, detail="The word is not in the allowed list")
+
+    # Определение позиций правильных букв
     correct_positions = [i for i in range(5) if attempt.word[i] == target_word[i]]
     correct_letters = [i for i in range(5) if attempt.word[i] in target_word and attempt.word[i] != target_word[i]]
 
@@ -57,6 +64,10 @@ async def make_attempt(
         # Начисляем очки только если пользователь авторизован
         if game_won and current_user:
             current_user.score += 10  # Увеличиваем счет только авторизованным пользователям
+            current_user.wins += 1  # Увеличиваем количество побед
+        if current_user:
+            current_user.games_played += 1  # Увеличиваем количество сыгранных игр
+
     await db.commit()
 
     return {
