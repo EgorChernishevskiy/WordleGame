@@ -38,27 +38,29 @@ async def make_attempt(
 
     target_word = game.target_word
 
+    current_word = attempt.word.lower()
+
     # Проверка длины слова
-    if len(attempt.word) != 5:
+    if len(current_word) != 5:
         raise HTTPException(status_code=400, detail="Word must be 5 letters long")
 
     # Проверка наличия слова в words_list
-    if attempt.word not in words_list:
+    if current_word not in words_list:
         raise HTTPException(status_code=400, detail="The word is not in the allowed list")
 
     # Определение позиций правильных букв
-    correct_positions = [i for i in range(5) if attempt.word[i] == target_word[i]]
-    correct_letters = [i for i in range(5) if attempt.word[i] in target_word and attempt.word[i] != target_word[i]]
+    correct_positions = [i for i in range(5) if current_word[i] == target_word[i]]
+    correct_letters = [i for i in range(5) if current_word[i] in target_word and current_word[i] != target_word[i]]
 
     # Сохраняем попытку
-    new_attempt = models.Attempt(game_id=game_id, word=attempt.word)
+    new_attempt = models.Attempt(game_id=game_id, word=current_word)
     new_attempt.set_correct_positions(correct_positions)  # Сериализуем позиции
     new_attempt.set_correct_letters(correct_letters)  # Сериализуем буквы
     db.add(new_attempt)
     game.attempts += 1
 
     # Проверка на выигрыш
-    game_won = attempt.word == target_word
+    game_won = current_word == target_word
     if game_won or game.attempts >= 6:
         game.is_active = False
         # Начисляем очки только если пользователь авторизован
@@ -71,7 +73,7 @@ async def make_attempt(
     await db.commit()
 
     return {
-        "word": attempt.word,
+        "word": current_word,
         "correct_positions": new_attempt.get_correct_positions(),  # Десериализуем позиции
         "correct_letters": new_attempt.get_correct_letters(),  # Десериализуем буквы
         "attempts_left": 6 - game.attempts,
