@@ -2,15 +2,17 @@
   <div class="login-register">
     <h1>{{ isLogin ? 'Вход' : 'Регистрация' }}</h1>
     <form @submit.prevent="handleSubmit">
-      <div>
-        <label for="username">Логин:</label>
-        <input v-model="username" id="username" type="text" required />
-      </div>
-      <div>
-        <label for="password">Пароль:</label>
-        <input v-model="password" id="password" type="password" required />
-      </div>
-      <button type="submit">{{ isLogin ? 'Войти' : 'Зарегистрироваться' }}</button>
+      <container class="log">
+        <div>
+          <label for="username">Логин:</label>
+          <input v-model="username" id="username" type="text" required />
+        </div>
+        <div>
+          <label for="password">Пароль:</label>
+          <input v-model="password" id="password" type="password" required />
+        </div>
+        <button type="submit">{{ isLogin ? 'Войти' : 'Зарегистрироваться' }}</button>
+      </container>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     <p>
@@ -80,11 +82,23 @@ export default defineComponent({
 
 <style scoped>
 .login-register {
-  max-width: 400px;
+  display: flex;
+  flex-direction: column;
   margin: auto;
+  margin-top: 200px;
+  align-items: center;
+  gap: 10px;
+  max-width: 400px;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 5px;
+}
+
+.log {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
 .error {
@@ -93,6 +107,7 @@ export default defineComponent({
 }
 
 button {
+  width: 200px;
   background-color: #3498db;
   color: white;
   border: none;
