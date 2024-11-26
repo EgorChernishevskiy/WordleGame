@@ -62,6 +62,7 @@ async def get_top_players(db: AsyncSession = Depends(database.get_db)):
             "top_by_win_rate": top_by_win_rate_serialized,  # Список пользователей с топом по win_rate
         }
 
+
 # Получение подробной информации о рейтинге пользователя
 @router.get("/user/{user_id}/score", response_model=dict)
 async def get_user_score(user_id: int, db: AsyncSession = Depends(database.get_db)):

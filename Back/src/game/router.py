@@ -37,7 +37,6 @@ async def make_attempt(
         raise HTTPException(status_code=404, detail="Game not found or already finished")
 
     target_word = game.target_word
-
     current_word = attempt.word.lower()
 
     # Проверка длины слова
@@ -54,6 +53,7 @@ async def make_attempt(
 
     # Сохраняем попытку
     new_attempt = models.Attempt(game_id=game_id, word=current_word)
+
     new_attempt.set_correct_positions(correct_positions)  # Сериализуем позиции
     new_attempt.set_correct_letters(correct_letters)  # Сериализуем буквы
     db.add(new_attempt)
@@ -61,6 +61,7 @@ async def make_attempt(
 
     # Проверка на выигрыш
     game_won = current_word == target_word
+
     if game_won or game.attempts >= 6:
         game.is_active = False
         # Начисляем очки только если пользователь авторизован
@@ -74,6 +75,7 @@ async def make_attempt(
 
     return {
         "word": current_word,
+
         "correct_positions": new_attempt.get_correct_positions(),  # Десериализуем позиции
         "correct_letters": new_attempt.get_correct_letters(),  # Десериализуем буквы
         "attempts_left": 6 - game.attempts,

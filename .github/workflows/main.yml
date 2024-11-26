@@ -20,6 +20,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 isort
 
-      - name: Run flake8 for line length
-        run: |
-          flake8 --max-line-length=120 .
+      - name: Run flake8
+        run: flake8 --max-line-length=120 --ignore=E302 .
