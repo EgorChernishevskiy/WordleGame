@@ -3,8 +3,11 @@
     <nav>
       <router-link to="/top-players">Топ игроков</router-link>
       <router-link class="gamme" to="/game">Игра</router-link>
-      <router-link to="/profile">
+      <router-link v-if="isAuthenticated" to="/profile">
         <button class="prof" style="font-size: 20px;">Профиль</button>
+      </router-link>
+      <router-link v-else to="/profile">
+        <button class="prof" style="font-size: 20px;">Войти</button>
       </router-link>
     </nav>
     <router-view />
@@ -13,9 +16,15 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { isAuthenticated } from './api/auth'; 
 
 export default defineComponent({
   name: 'App',
+  computed: {
+    isAuthenticated() {
+      return isAuthenticated();
+    },
+  },
 });
 </script>
 

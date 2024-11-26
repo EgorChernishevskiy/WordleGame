@@ -97,35 +97,41 @@ export default defineComponent({
         loading.value = true;
         errorMessage.value = null;
 
-        // Запрашиваем топ игроков
         const topData = await getTopPlayers();
         topByWinRate.value = topData.top_by_win_rate;
         topByWins.value = topData.top_by_wins;
 
-        // Получаем ID текущего пользователя
         const userId = getCurrentUserId();
-        if (!userId) {
-          throw new Error('Пользователь не авторизован');
+        if (userId) {
+          const userResponse = await getUserScore(userId);
+          currentUser.value = {
+            user_name: userResponse.user_name,
+            wins: userResponse.wins,
+            win_rate: userResponse.win_rate,
+            rank_by_wins: userResponse.rank_by_wins,
+            rank_by_win_rate: userResponse.rank_by_win_rate,
+          };
+          
+          isInTopWinRate.value = topByWinRate.value.some(
+            (player) => player.user_name === currentUser.value?.user_name
+          );
+          isInTopWins.value = topByWins.value.some(
+            (player) => player.user_name === currentUser.value?.user_name
+          );
         }
-
-        // Получаем данные текущего пользователя
-        const userResponse = await getUserScore(userId);
-        currentUser.value = {
-          user_name: userResponse.user_name,
-          wins: userResponse.wins,
-          win_rate: userResponse.win_rate,
-          rank_by_wins: userResponse.rank_by_wins,
-          rank_by_win_rate: userResponse.rank_by_win_rate,
-        };
-        isInTopWinRate.value = topByWinRate.value.some(
-          (player) => player.user_name === currentUser.value?.user_name
-        );
-        isInTopWins.value = topByWins.value.some(
-          (player) => player.user_name === currentUser.value?.user_name
-        );
-      } catch (error: any) {
-        console.error('Ошибка:', error);
-        errorMessage.value = 'Не удалось загрузить данные о топ-игроках.';
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error) {
+          const err = error as { response: { data?: { detail?: string } } };
+          console.error('Ошибка:', err.response.data?.detail || 'Неизвестная ошибка от сервера.');
+          errorMessage.value =
+            err.response.data?.detail || 'Не удалось загрузить данные о топ-игроках.';
+        } else if (error instanceof Error) {
+          console.error('Ошибка:', error.message);
+          errorMessage.value = error.message || 'Не удалось загрузить данные о топ-игроках.';
+        } else {
+          console.error('Неизвестная ошибка:', error);
+          errorMessage.value = 'Не удалось загрузить данные о топ-игроках из-за неизвестной ошибки.';
+        }
       } finally {
         loading.value = false;
       }

@@ -26,7 +26,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { login, register } from '../api/auth'; // Импорт API
-import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'LoginRegisterView',
@@ -35,7 +34,6 @@ export default defineComponent({
     const password = ref('');
     const isLogin = ref(true); // Определяет, показывать форму логина или регистрации
     const errorMessage = ref<string | null>(null);
-    const router = useRouter();
 
     const handleSubmit = async () => {
       try {
@@ -49,18 +47,26 @@ export default defineComponent({
           localStorage.setItem('access_token', token.access_token);
           localStorage.setItem('user_id', String(token.user_id));
 
-          // Перенаправляем на страницу профиля
-          router.push('/profile');
+          window.location.href = '/game';
         } else {
           // Регистрация
           await register({ user_name: username.value, password: password.value });
           alert('Регистрация прошла успешно! Теперь вы можете войти.');
           isLogin.value = true; // Переключаемся на логин
         }
-      } catch (error: any) {
-        console.error('Ошибка:', error);
-        errorMessage.value =
-          error.response?.data?.detail || 'Произошла ошибка. Проверьте данные и попробуйте снова.';
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error) {
+          const err = error as { response: { data?: { detail?: string } } };
+          errorMessage.value =
+            err.response.data?.detail || 'Произошла ошибка. Проверьте данные и попробуйте снова.';
+          console.error('Ошибка:', err.response.data?.detail);
+        } else if (error instanceof Error) {
+          console.error('Ошибка:', error.message);
+          errorMessage.value = error.message || 'Произошла ошибка. Проверьте данные и попробуйте снова.';
+        } else {
+          console.error('Неизвестная ошибка:', error);
+          errorMessage.value = 'Произошла неизвестная ошибка. Попробуйте снова.';
+        }
       }
     };
 

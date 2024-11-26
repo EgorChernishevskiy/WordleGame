@@ -35,7 +35,7 @@
         </tbody>
       </table>
       <div class="exit">
-        <button class="but-ex">Выход</button>
+        <button class="but-ex" @click="handleLogout">Выход</button>
       </div>
     </div>
   </div>
@@ -43,12 +43,11 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { getUserScore, getCurrentUserId, CurrentUser } from '../api/auth';
+import { getUserScore, getCurrentUserId, CurrentUser, logout } from '../api/auth';
 
 export default defineComponent({
   name: 'ProfilePage',
   setup() {
-    // Инициализируем `user` с соответствующим типом CurrentUser
     const user = ref<CurrentUser>({
       user_name: '',
       wins: 0,
@@ -60,6 +59,11 @@ export default defineComponent({
     const loading = ref(true);
     const errorMessage = ref<string | null>(null);
 
+    const handleLogout = () => {
+      logout();
+      window.location.href = '/';
+    };
+
     onMounted(async () => {
       try {
         const userId = getCurrentUserId();
@@ -70,16 +74,25 @@ export default defineComponent({
         const response = await getUserScore(userId);
         // Обновляем данные пользователя
         user.value = response;
-      } catch (error: any) {
-        console.error('Ошибка при загрузке данных профиля:', error);
-        errorMessage.value =
-          error.response?.data?.detail || 'Не удалось загрузить данные профиля.';
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error) {
+          const err = error as { response: { data?: { detail?: string } } };
+          errorMessage.value =
+            err.response.data?.detail || 'Не удалось загрузить данные профиля.';
+          console.error('Ошибка при загрузке данных профиля:', err.response.data?.detail);
+        } else if (error instanceof Error) {
+          console.error('Ошибка при загрузке данных профиля:', error.message);
+          errorMessage.value = error.message || 'Не удалось загрузить данные профиля.';
+        } else {
+          console.error('Неизвестная ошибка при загрузке данных профиля:', error);
+          errorMessage.value = 'Не удалось загрузить данные профиля из-за неизвестной ошибки.';
+        }
       } finally {
         loading.value = false;
       }
     });
 
-    return { user, loading, errorMessage };
+    return { user, loading, errorMessage, handleLogout };
   },
 });
 </script>

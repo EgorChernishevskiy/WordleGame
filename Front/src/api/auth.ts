@@ -120,3 +120,12 @@ export const getCurrentUserId = (): number | null => {
   const userId = localStorage.getItem('user_id');
   return userId ? Number(userId) : null;
 };
+
+export const isAuthenticated = () => {
+  return getCurrentUserId() !== null; 
+};
+
+export const logout = () => {
+  localStorage.removeItem('user_id');
+  localStorage.removeItem('access_token');
+};

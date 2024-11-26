@@ -26,8 +26,9 @@
   
   <!-- Клавиатура -->
   <div class="keyboard-row">
-    <button class="key special" @click="handleDelete">←</button>
+    <button class="key special" @click="startNewGame($event)">Заново</button>
     <button class="key special" @click="handleSubmit">Проверить</button>
+    <button class="key special" @click="handleDelete">←</button>
   </div>
     <div class="keyboard">
       <div class="keyboard-row" v-for="(row, rowIndex) in keyboardRows" :key="rowIndex">
@@ -51,9 +52,9 @@
     <p v-if="gameOver" class="game-over">
       {{ gameWon ? 'Поздравляем! Вы угадали слово!' : 'Игра окончена! Попробуйте ещё раз.' }}
     </p>
-    <button v-if="gameOver" @click="startNewGame" class="new-game">Новая игра</button>
   </div>
 </template>
+
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { startGame, makeAttempt } from '../api/auth';
@@ -81,8 +82,11 @@ export default defineComponent({
     const gameOver = ref(false);
     const gameWon = ref(false);
 
-    const startNewGame = async () => {
+    const startNewGame = async (event?: Event) => {
       try {
+        if (event && event.target instanceof HTMLElement) {
+          event.target.blur();
+        }
         loading.value = true;
         const response: GameStart = await startGame();
         gameId.value = response.game_id;
@@ -94,10 +98,20 @@ export default defineComponent({
         keyStatuses.value = {};
         gameOver.value = false;
         gameWon.value = false;
-      } catch (error: any) {
-        console.error('Ошибка при запуске игры:', error);
-        errorMessage.value = error.response?.data?.detail || 'Не удалось начать игру.';
-      } finally {
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error) {
+          const err = error as { response: { data?: { detail?: string } } };
+          errorMessage.value = err.response.data?.detail || 'Не удалось начать игру.';
+          console.error('Ошибка при запуске игры:', err.response.data?.detail);
+        } else if (error instanceof Error) {
+          console.error('Ошибка при запуске игры:', error.message);
+          errorMessage.value = error.message || 'Не удалось начать игру.';
+        } else {
+          console.error('Неизвестная ошибка:', error);
+          errorMessage.value = 'Неизвестная ошибка.';
+        }
+      }
+      finally {
         loading.value = false;
       }
     };
@@ -120,7 +134,10 @@ export default defineComponent({
 
       const word = grid.value[currentRow.value].map((cell) => cell.letter).join('').toLowerCase();
       try {
-        const response: AttemptResult = await makeAttempt(gameId.value!, { word });
+        if (!gameId.value) {
+          throw new Error('Игра не инициализирована.');
+        }
+        const response: AttemptResult = await makeAttempt(gameId.value, { word });
         response.correct_positions.forEach((pos) => {
           grid.value[currentRow.value][pos].status = 'correct';
           keyStatuses.value[grid.value[currentRow.value][pos].letter] = 'correct';
@@ -146,21 +163,29 @@ export default defineComponent({
           currentRow.value++;
           currentCol.value = 0;
         }
-      } catch (error: any) {
-        console.error('Ошибка при отправке попытки:', error);
-        errorMessage.value = error.response?.data?.detail || 'Не удалось обработать попытку.';
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error) {
+          const err = error as { response: { data?: { detail?: string } } };
+          errorMessage.value = err.response.data?.detail || 'Не удалось обработать попытку.';
+        } else {
+          errorMessage.value = 'Неизвестная ошибка.';
+        }
       }
     };
 
     const handleKeyPress = (event: KeyboardEvent) => {
-      const key = event.key.toUpperCase();
-      if (/^[A-Z]$/.test(key)) {
-        handleKeyClick(key);
-      } else if (key === 'BACKSPACE') {
-        handleDelete();
-      } else if (key === 'ENTER') {
-        handleSubmit();
+      const key = event.key;
+      if (key && typeof key === 'string') {
+        const upperKey = key.toUpperCase();
+        if (/^[A-Z]$/.test(upperKey)) {
+          handleKeyClick(upperKey);
+        } else if (upperKey === 'BACKSPACE') {
+          handleDelete();
+        } else if (upperKey === 'ENTER') {
+          handleSubmit();
+        }
       }
+      
     };
 
     onMounted(() => {
