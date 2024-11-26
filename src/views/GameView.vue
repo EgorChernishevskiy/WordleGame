@@ -1,6 +1,6 @@
 <template>
   <div class="game-container">
-    <h1>Wordle</h1>
+    <h1>WORDLE</h1>
 
     <!-- Игровое поле -->
     <div class="grid">
@@ -19,12 +19,16 @@
             absent: cell.status === 'absent',
           }"
         >
-          {{ cell.letter }}
-        </div>
+        {{ cell.letter }}
       </div>
     </div>
-
-    <!-- Клавиатура -->
+  </div>
+  
+  <!-- Клавиатура -->
+  <div class="keyboard-row">
+    <button class="key special" @click="handleDelete">←</button>
+    <button class="key special" @click="handleSubmit">Проверить</button>
+  </div>
     <div class="keyboard">
       <div class="keyboard-row" v-for="(row, rowIndex) in keyboardRows" :key="rowIndex">
         <button
@@ -40,10 +44,6 @@
         >
           {{ key }}
         </button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key special" @click="handleDelete">←</button>
-        <button class="key special" @click="handleSubmit">Проверить</button>
       </div>
     </div>
 
@@ -188,6 +188,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 .game-container {
   text-align: center;
   max-width: 400px;
@@ -196,7 +197,7 @@ export default defineComponent({
 
 .grid {
   display: grid;
-  grid-template-rows: repeat(6, 50px);
+  grid-template-rows: repeat(6, 70px);
   grid-gap: 5px;
   margin-bottom: 20px;
 }
@@ -204,15 +205,16 @@ export default defineComponent({
 .grid-row {
   display: flex;
   justify-content: center;
+  grid-gap: 3px;
 }
 
 .grid-cell {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   border: 1px solid #ddd;
   text-align: center;
-  line-height: 50px;
-  font-size: 20px;
+  line-height: 70px;
+  font-size: 30px;
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -244,7 +246,7 @@ export default defineComponent({
 .key {
   margin: 0 5px;
   padding: 10px 15px;
-  font-size: 16px;
+  font-size: 25px;
   border: none;
   border-radius: 5px;
   cursor: pointer;

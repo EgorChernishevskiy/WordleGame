@@ -150,6 +150,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
+h1 {
+  margin-top: 70px;
+}
+
 .top-players {
   max-width: 800px;
   margin: auto;
