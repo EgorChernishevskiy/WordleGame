@@ -23,10 +23,10 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"],  # Разрешаем запросы с фронтенда на порту 8080
+    allow_origins=["http://localhost:8080"],
     allow_credentials=True,
-    allow_methods=["*"],  # Разрешаем все методы (GET, POST, OPTIONS и т.д.)
-    allow_headers=["*"],  # Разрешаем все заголовки
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Подключаем маршруты авторизации

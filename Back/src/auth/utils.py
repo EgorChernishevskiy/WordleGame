@@ -28,7 +28,7 @@ def verify_password(plain_password, hashed_password):
 # Секретный ключ для кодирования JWT
 SECRET_KEY = "biba"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 optional_oauth2_scheme = OptionalOAuth2PasswordBearer(tokenUrl="login")
 

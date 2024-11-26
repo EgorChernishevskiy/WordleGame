@@ -14,7 +14,9 @@ async def get_top_players(db: AsyncSession = Depends(database.get_db)):
     async with db as session:
         # Топ по количеству побед
         top_by_wins = await session.execute(
-            select(models.User).order_by(models.User.wins.desc()).limit(20)
+            select(models.User)
+            .order_by(models.User.wins.desc(), models.User.user_name.asc())  # Добавили сортировку по имени
+            .limit(20)
         )
         top_by_wins = top_by_wins.scalars().all()
 
@@ -34,8 +36,9 @@ async def get_top_players(db: AsyncSession = Depends(database.get_db)):
         # Топ по соотношению побед/поражений (win_rate)
         # Учитываем только тех пользователей, у которых сыграно хотя бы 1 игра
         top_by_win_rate = await session.execute(
-            select(models.User).where(models.User.games_played > 0)
-            .order_by((models.User.wins / models.User.games_played).desc())
+            select(models.User)
+            .where(models.User.games_played > 0)
+            .order_by((models.User.wins / models.User.games_played).desc(), models.User.user_name.asc())  # Сортировка по имени
             .limit(20)
         )
         top_by_win_rate = top_by_win_rate.scalars().all()
@@ -75,7 +78,10 @@ async def get_user_score(user_id: int, db: AsyncSession = Depends(database.get_d
 
         # Место в топе по количеству побед
         rank_by_wins_query = await session.execute(
-            select(func.count()).where(models.User.wins > user.wins)
+            select(func.count()).where(
+                (models.User.wins > user.wins) |
+                ((models.User.wins == user.wins) & (models.User.user_name < user.user_name))
+            )
         )
         rank_by_wins = rank_by_wins_query.scalar() + 1  # Место пользователя по количеству побед
 
@@ -83,8 +89,9 @@ async def get_user_score(user_id: int, db: AsyncSession = Depends(database.get_d
         if user.games_played > 0:
             rank_by_win_rate_query = await session.execute(
                 select(func.count()).where(
-                    (models.User.wins / models.User.games_played)
-                    > (user.wins / user.games_played)
+                    ((models.User.wins / models.User.games_played) > win_rate) |
+                    (((models.User.wins / models.User.games_played) == win_rate) &
+                     (models.User.user_name < user.user_name))
                 )
             )
             rank_by_win_rate = rank_by_win_rate_query.scalar() + 1  # Место пользователя по win_rate
